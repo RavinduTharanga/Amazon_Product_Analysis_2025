@@ -1,51 +1,37 @@
 from bs4 import BeautifulSoup
 import requests
-import re
-import pandas as pd
-
-import csv
-
-# Downloading imdb top 250 movie's data
-url = 'https://www.netflix.com/tudum/top10'
-response = requests.get(url)
-soup = BeautifulSoup(response.text, "html.parser")
 
 
-
-movies = soup.select('td button')
-
-view = soup.find_all('td', class_='views')
-
-movie_names = []
-for movie in movies:
-    movie_names.append(movie.text)
-
-views = []
-
-for div in view:
-    text = div.get_text()
-    views.append(text.replace(",",""))  
+def main(url):
+    File = open("amazon.csv", "a")
+      # available on the internet
+    HEADERS = ({'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)Chrome/44.0.2403.157 Safari/537.36','Accept-Language': 'en-US, en;q=0.5'})
+    webpage = requests.get(url, headers=HEADERS)
 
 
-res = dict(zip(movie_names, views))
+    soup = BeautifulSoup(webpage.content, "lxml")
 
-# for x, y in res.items():
-#   print("movie name:",x, "views:",y)
+    try:
+        title = soup.find("span", 
+                          attrs={"id": 'productTitle'})
+        title_value = title.string
+        title_string = title_value.strip().replace(',', '')
+    except AttributeError:
 
-# field_names = ['movie', 'views'] 
+        title_string = "NA"
 
+        print("product Title = ", title_string)
 
-csv_file = 'netflix.csv'
+    File.write(f"{title_string},")
+   
 
-# Writing to CSV file
-with open(csv_file, 'w', newline='') as file:
-    writer = csv.writer(file)
-    writer.writerow(['Movie Name', 'Views'])
-	
-    # Write data
-    for key, value in res.items():
-        writer.writerow([key, value])
+# closing the file
+    File.close()
 
-print(f"Dictionary saved to {csv_file}")
+if __name__ == '__main__':
+  # opening our url file to access URLs
+    # file = open("url.txt", "r")
 
-# print(res)
+    # iterating over the urls
+    # for links in file.readlines():
+    main("https://www.amazon.com/Amazon-vibrant-helpful-routines-Charcoal/dp/B09B8V1LZ3/ref=asc_df_B09B8V1LZ3?mcid=1ad576cb6b5c3199aa9b82f2f916e42a&hvocijid=5258534744136503602-B09B8V1LZ3-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=730434204848&hvpos=&hvnetw=g&hvrand=5258534744136503602&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9010619&hvtargid=pla-2281435179778&psc=1")
